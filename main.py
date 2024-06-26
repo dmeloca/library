@@ -2,7 +2,8 @@ import os
 import subprocess
 import platform
 
-dir_path = r"path/to/your/folder/with/pdfs"
+
+dir_path = input("Enter the path of the folder where the books are located: ")
 
 class Book:
     def __init__(self, title: str, author: str, date: str, editorial: str, categories: list, language:str, url:str) -> None:
@@ -31,32 +32,32 @@ def create_library() -> list:
             books.append(new_book)
 
         except IndexError:
-            print(f"[!] El libro '{book}' está mal etiquetado")
+            print(f"[!] The book '{book}' is not well formatted.")
 
     return books
 
 def open_pdf(book_name:str):
     try:
         if platform.system() == 'Windows':
+            book_name = os.path.join(dir_path, book_name)
             subprocess.run(['start', '', book_name], shell=True)
         else:
             subprocess.run(['open', book_name])
     except FileNotFoundError:
-        print("El comando de apertura no está disponible en este sistema.")
+        print("The open command is not available.")
 
 def print_library(library:list)-> None:
     counter:int = 1
     for book in library:
-        print(f"[{counter}] {especial_print(book.title)}")
+        if counter < 10:
+            zero_counter = f"0{counter}"
+            print(f"[{zero_counter}] {especial_print(book.title)}")
+        else:
+            print(f"[{counter}] {especial_print(book.title)}")
         counter += 1
 
 def especial_print(text:str):
-    result = ''
-    for i, char in enumerate(text):
-        if char.isupper() and i != 0:  # Verifica si el carácter es mayúscula y no es el primer carácter
-            result += ' ' + char
-        else:
-            result += char
+    result = text.replace('-', ' ')
     return result
 
 def tool(library:list, filter:str, parameter:str):
@@ -69,37 +70,36 @@ def tool(library:list, filter:str, parameter:str):
 def search(filter:str, library:list) -> list:
     filters = {'a': 'author', 'd': 'date', 't': 'title', 'c': 'categories', 'l': 'language', 'e': 'editorial'}
     if filter not in filters:
-        print("[!] Filtro No encontrado")
+        print("[!] Filter not found.")
         return []
     else:
-        parameter = input(f"Ingrese {filters[filter]} del libro: ")
+        parameter = input(f"Enter the {filters[filter]} of the book: ")
         return tool(library, filters[filter], parameter)
     
 
 
 def main():
     library = create_library()
-    print("Esta es su biblioteca personal")
+    print("This is your bookshelf, enjoy it!")
     while True:
-        answer=input("¿Qué desea hacer? (P)rint all titles, (S)earch, (O)pen a book or (E)xit ")
+        answer=input("What do you want to do? (P)rint all titles, (S)earch, (O)pen a book or (E)xit ")
         if answer.lower() == 'p':
-            print("Su biblioteca se compone por: ")
+            print("Your bookshelf: ")
             print_library(library)
-            exit(0)
         elif answer.lower() == 's':
-            search_filter = input("¿Qué filtro desea usar? ((T)itle, (C)ategorie, (D)ate, (E)ditorial, (L)anguage or by (A)uthor)")
+            search_filter = input("Which filter do you want to use? ((T)itle, (C)ategorie, (D)ate, (E)ditorial, (L)anguage or by (A)uthor)")
             finded_books = search(search_filter.lower(), library)
             print_library(finded_books)
         elif answer.lower() == 'o':
-            book_name = input("Ingrese el nombre del libro que desea abrir: ")
+            book_name = input("Enter the name of the book you want to open:")
             for book in library:
                 if book_name == book.title:
                     open_pdf(book.url)
         elif answer.lower() == 'e':
-            print("Saliendo")
+            print("Goodbye!")
             exit(0)
         else:
-            print("Ingrese un valor correcto")
+            print("Please enter a valid option.")
 
 
 
